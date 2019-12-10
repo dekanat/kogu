@@ -1,0 +1,17 @@
+group 'dekanat'
+version '1.0'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+def toolsJar = files("${System.getProperty('java.home')}/../lib/tools.jar")
+
+dependencies {
+    compile toolsJar
+}
