@@ -1,6 +1,7 @@
 package dekanat.kogu;
 
-import com.sun.source.util.*;
+import com.sun.source.util.JavacTask;
+import com.sun.source.util.Plugin;
 import com.sun.tools.javac.api.BasicJavacTask;
 import com.sun.tools.javac.util.Context;
 

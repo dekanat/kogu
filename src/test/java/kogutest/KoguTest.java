@@ -1,10 +1,9 @@
 package kogutest;
 
 public class KoguTest {
-  private final Integer instance = 0;
-  public final String s = "qerob";
   {
-    TEE instance = TEE.INSTANCE;
+    E instance = E.INSTANCE;
+
     switch (instance) {
       case INSTANCE:
         System.out.println("Instance");
@@ -15,6 +14,6 @@ public class KoguTest {
   }
 }
 
-enum TEE {
+enum E {
   INSTANCE
 }

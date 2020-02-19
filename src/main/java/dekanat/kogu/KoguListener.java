@@ -1,24 +1,26 @@
 package dekanat.kogu;
 
+import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
-import com.sun.source.util.TreeScanner;
-import com.sun.tools.javac.api.BasicJavacTask;
-import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
-import dekanat.kogu.scanners.AnalyzeTreeScanner;
-import dekanat.kogu.scanners.IdentifierCounter;
-import dekanat.kogu.scanners.SwitchTreeScanner;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.sun.source.util.TaskEvent.Kind.ANALYZE;
-import static com.sun.source.util.TaskEvent.Kind.PARSE;
 
 public class KoguListener implements TaskListener {
   private Context context;
+
   public KoguListener(Context context) {
     this.context = context;
   }
+
+  private final Map<String, String> enumOccurrences = new HashMap<>();
 
   @Override
   public void started(TaskEvent e) {
@@ -26,25 +28,30 @@ public class KoguListener implements TaskListener {
 
   @Override
   public void finished(TaskEvent e) {
-    if (PARSE.equals(e.getKind())) {
-      TreeScanner switchVisitor = new SwitchTreeScanner(context);
-      JCTree cu = (JCTree) e.getCompilationUnit();
-      switchVisitor.scan(cu, null);
+    if (ANALYZE.equals(e.getKind())) {
+      CompilationUnitTree cu = e.getCompilationUnit();
+      System.out.println("In ANALYZE " + cu.getSourceFile().getName());
 
-      Types types = Types.instance(context);
-//          System.out.println(Names.instance(context).);
+      System.out.println("***** Symbol scanner");
+      Symbol.PackageSymbol ps = ((JCTree.JCCompilationUnit)cu).packge;
+      Iterable<Symbol> packageSymbols = ps.members_field.getSymbols();
 
-      IdentifierCounter counter = new IdentifierCounter(context);
-      Integer scan = counter.scan(cu, null);
-      System.out.println("Scan " + scan);
+      packageSymbols.forEach(this::markIfEnum);
+      enumOccurrences.forEach((k, v) -> System.out.println(k + " of type " + v));
 
-//          CompilationUnitTree cu = e.getCompilationUnit();
-//          System.out.println(cu);
-    } else if (ANALYZE.equals(e.getKind())) {
-      AnalyzeTreeScanner analyzeTreeScanner = new AnalyzeTreeScanner(context);
-      JCTree compilationUnit = (JCTree) e.getCompilationUnit();
-      analyzeTreeScanner.scan(compilationUnit, null);
+      System.out.println("***** Switch visitor");
+      SwitchTreeScanner switchVisitor = new SwitchTreeScanner(context);
+      switchVisitor.scan(cu, 33);
+    }
+  }
+
+  private void markIfEnum(Symbol s) {
+
+    Type supertype = ((Type.ClassType) s.type).supertype_field;
+    String supertypeName = supertype.tsym.name.toString();
+
+    if (supertypeName.equals("Enum")) {
+      enumOccurrences.put(s.name.toString(), supertypeName);
     }
   }
 }
-
