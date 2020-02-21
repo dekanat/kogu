@@ -5,25 +5,23 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.util.Context;
 
-public class SwitchTreeScanner extends TreeScanner {
+public class ASTScanner extends TreeScanner {
   private Context context;
+  private State state = State.INSTANCE;
 
-  public SwitchTreeScanner(Context context) {
+  public ASTScanner(Context context) {
     this.context = context;
   }
 
   @Override
   public Object visitVariable(VariableTree node, Object o) {
-    System.out.println("Variable found");
-    System.out.println("By name " + node.getName() + " and of type " + node.getType());
+    state.addVariableDeclaration(new EnumDeclaration(node));
     return super.visitVariable(node, o);
   }
 
   @Override
   public Object visitSwitch(SwitchTree node, Object o) {
-    System.out.println("Switch found");
-    System.out.println(node.getExpression());
-    System.out.println(node.getCases());
+    state.addSwitch(new Switch(node));
     return super.visitSwitch(node, o);
   }
 }
