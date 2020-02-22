@@ -3,6 +3,7 @@ package kogutest;
 public class KoguTest {
   {
     E instance = E.INSTANCE;
+    final String var = "var";
 
     switch (instance) {
       case INSTANCE:
@@ -15,5 +16,7 @@ public class KoguTest {
 }
 
 enum E {
-  INSTANCE
+  INSTANCE,
+  ANOTHER_INSTANCE;
+  String p;
 }

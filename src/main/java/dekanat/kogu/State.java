@@ -6,11 +6,11 @@ import java.util.Set;
 enum State {
   INSTANCE;
 
-  private final static Set<Switch> partialSwitches = new HashSet<>();
+  private final static Set<EnumSwitch> partialSwitches = new HashSet<>();
   private final static Set<EnumDefinition> enumDefinitions = new HashSet<>();
 
   private static Set<EnumDeclaration> enumDeclarations = new HashSet<>();
-  private static Set<Switch> switches = new HashSet<>();
+  private static Set<EnumSwitch> switches = new HashSet<>();
 
   public static State rinse() {
     enumDeclarations = new HashSet<>();
@@ -26,11 +26,11 @@ enum State {
     return enumDefinitions;
   }
 
-  public static Set<Switch> getSwitches() {
+  public static Set<EnumSwitch> getSwitches() {
     return switches;
   }
 
-  public static Set<Switch> getPartialSwitches() {
+  public static Set<EnumSwitch> getPartialSwitches() {
     return partialSwitches;
   }
 
@@ -42,7 +42,7 @@ enum State {
     enumDefinitions.add(enumDefinition);
   }
 
-  public void addSwitch(Switch theSwitch) {
+  public void addSwitch(EnumSwitch theSwitch) {
     switches.add(theSwitch);
   }
 
@@ -51,20 +51,20 @@ enum State {
   }
 
   public void brief() {
-    System.out.println("Brief description");
+    System.out.println("****** Brief description");
     System.out.println();
     System.out.println("* Switches");
-    switches.forEach(s -> System.out.println("  " + s.getExpression()));
+    switches.forEach(s -> System.out.println(s));
     System.out.println();
     System.out.println("* Variables");
-    enumDeclarations.forEach(vd -> System.out.println(vd));
+    enumDeclarations.forEach(ed -> System.out.println(ed));
     System.out.println();
     System.out.println("* Enums");
-    enumDefinitions.forEach(ed -> System.out.println(ed.getName()));
+    enumDefinitions.forEach(ed -> System.out.println(ed));
 
   }
 
   public void verbose() {
-    System.out.println("Verbose description");
+    System.out.println("****** Verbose description");
   }
 }

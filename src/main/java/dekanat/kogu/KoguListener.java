@@ -12,19 +12,20 @@ import static com.sun.source.util.TaskEvent.Kind.ANALYZE;
 
 public class KoguListener implements TaskListener {
   private Context context;
-  private final State state = State.rinse();
-
   public KoguListener(Context context) {
     this.context = context;
   }
 
+
   @Override
   public void finished(TaskEvent e) {
     if (ANALYZE.equals(e.getKind())) {
+      final State state = State.rinse();
+
       CompilationUnitTree cu = e.getCompilationUnit();
 
-      scanSymbols((JCTree.JCCompilationUnit) cu);
-      scanAST(cu);
+      scanSymbols((JCTree.JCCompilationUnit) cu, state);
+      scanAST(cu, state);
 
       state.brief();
 
@@ -33,19 +34,21 @@ public class KoguListener implements TaskListener {
     }
   }
 
-  private void scanAST(CompilationUnitTree cu) {
+  private void scanAST(CompilationUnitTree cu, State state) {
     ASTScanner switchVisitor = new ASTScanner(context);
-    switchVisitor.scan(cu, null);
+    switchVisitor.scan(cu, state);
   }
 
-  private void scanSymbols(JCTree.JCCompilationUnit cu) {
+  private void scanSymbols(JCTree.JCCompilationUnit cu, State state) {
     Symbol.PackageSymbol ps = cu.packge;
     Iterable<Symbol> packageSymbols = ps.members_field.getSymbols();
 
-    packageSymbols.forEach(this::markIfEnum);
+    for (Symbol symbol : packageSymbols) {
+      markIfEnum(symbol, state);
+    }
   }
 
-  private void markIfEnum(Symbol s) {
+  private void markIfEnum(Symbol s, State state) {
 
     Type supertype = ((Type.ClassType) s.type).supertype_field;
     String supertypeName = supertype.tsym.name.toString();

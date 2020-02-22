@@ -1,29 +1,28 @@
 package dekanat.kogu;
 
 import com.sun.source.tree.VariableTree;
+import com.sun.tools.javac.tree.JCTree;
 
 import java.util.Objects;
 
 public class EnumDeclaration {
-  private String name;
-  private String type;
+  public final String name;
+  public final String type;
 
   public EnumDeclaration(VariableTree node) {
     name = node.getName().toString();
-    type = node.getType().toString();
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getType() {
-    return type;
+    type = ((JCTree.JCVariableDecl) node).vartype.type.toString();
   }
 
   @Override
   public String toString() {
-    return "name = '" + name + '\'' + "type = '" + type + '\'';
+    StringBuilder stringRep = new StringBuilder()
+      .append("Name:\n")
+      .append("  " + name + "\n")
+      .append("Type:\n")
+      .append("  " + type + "\n");
+
+    return stringRep.toString();
   }
 
   @Override
