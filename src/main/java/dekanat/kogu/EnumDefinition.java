@@ -9,11 +9,9 @@ import java.util.Set;
 
 public class EnumDefinition {
   public final String fullName;
-  public final String name;
   public final Set<String> instanceMembers = new HashSet<>();
 
   public EnumDefinition(Symbol symbol) {
-    name = symbol.getSimpleName().toString();
     fullName = symbol.getQualifiedName().toString();
 
     List<Symbol> enclosedElements = symbol.getEnclosedElements();
@@ -29,12 +27,13 @@ public class EnumDefinition {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     EnumDefinition that = (EnumDefinition) o;
-    return fullName.equals(that.fullName);
+    return fullName.equals(that.fullName) &&
+      instanceMembers.equals(that.instanceMembers);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(fullName);
+    return Objects.hash(fullName, instanceMembers);
   }
 
   @Override

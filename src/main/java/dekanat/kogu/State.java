@@ -1,45 +1,25 @@
 package dekanat.kogu;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 enum State {
   INSTANCE;
 
   private final static Set<EnumSwitch> partialSwitches = new HashSet<>();
-  private final static Set<EnumDefinition> enumDefinitions = new HashSet<>();
+  private final static Map<String, EnumDefinition> enumDefinitions = new HashMap<>();
 
-  private static Set<EnumDeclaration> enumDeclarations = new HashSet<>();
   private static Set<EnumSwitch> switches = new HashSet<>();
 
-  public static State rinse() {
-    enumDeclarations = new HashSet<>();
+  public static State rinsed() {
     switches = new HashSet<>();
     return INSTANCE;
   }
 
-  public static Set<EnumDeclaration> getEnumDeclarations() {
-    return enumDeclarations;
-  }
-
-  public static Set<EnumDefinition> getEnumDefinitions() {
-    return enumDefinitions;
-  }
-
-  public static Set<EnumSwitch> getSwitches() {
-    return switches;
-  }
-
-  public static Set<EnumSwitch> getPartialSwitches() {
-    return partialSwitches;
-  }
-
-  public void addVariableDeclaration(EnumDeclaration enumDeclaration) {
-    enumDeclarations.add(enumDeclaration);
-  }
-
   public void addEnumDefinition(EnumDefinition enumDefinition) {
-    enumDefinitions.add(enumDefinition);
+    enumDefinitions.put(enumDefinition.fullName, enumDefinition);
   }
 
   public void addSwitch(EnumSwitch theSwitch) {
@@ -47,7 +27,18 @@ enum State {
   }
 
   public Report evaluate() {
-    return new Report();
+
+    for (EnumSwitch enumSwitch : switches) {
+      EnumDefinition enumDefinition = enumDefinitions.get(enumSwitch.identifierType);
+
+      if (!enumSwitch.hasDefault() && enumDefinition != null) {
+        if (!enumSwitch.cases.containsAll(enumDefinition.instanceMembers)) {
+          partialSwitches.add(enumSwitch);
+        }
+      }
+    }
+
+    return new Report(partialSwitches);
   }
 
   public void brief() {
@@ -56,11 +47,8 @@ enum State {
     System.out.println("* Switches");
     switches.forEach(s -> System.out.println(s));
     System.out.println();
-    System.out.println("* Variables");
-    enumDeclarations.forEach(ed -> System.out.println(ed));
-    System.out.println();
     System.out.println("* Enums");
-    enumDefinitions.forEach(ed -> System.out.println(ed));
+    enumDefinitions.forEach((k, v) -> System.out.println(v));
 
   }
 

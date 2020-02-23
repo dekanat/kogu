@@ -20,14 +20,12 @@ public class KoguListener implements TaskListener {
   @Override
   public void finished(TaskEvent e) {
     if (ANALYZE.equals(e.getKind())) {
-      final State state = State.rinse();
+      final State state = State.rinsed();
 
       CompilationUnitTree cu = e.getCompilationUnit();
 
       scanSymbols((JCTree.JCCompilationUnit) cu, state);
       scanAST(cu, state);
-
-      state.brief();
 
       Report report = state.evaluate();
       report.brief();
@@ -35,7 +33,7 @@ public class KoguListener implements TaskListener {
   }
 
   private void scanAST(CompilationUnitTree cu, State state) {
-    ASTScanner switchVisitor = new ASTScanner(context);
+    EnumSwitchScanner switchVisitor = new EnumSwitchScanner(context);
     switchVisitor.scan(cu, state);
   }
 

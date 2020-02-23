@@ -9,14 +9,13 @@ import java.util.Objects;
 import java.util.Set;
 
 public class EnumSwitch {
-  public final String identifierName;
   public final String identifierType;
-  private boolean hasDefault = false;
   public final Set<String> cases = new HashSet<>();
+  private boolean hasDefault = false;
+  public final String location = "Somewhere in the code";
 
   public EnumSwitch(SwitchTree switchTree) {
     JCTree.JCIdent identifier = (JCTree.JCIdent) ((JCTree.JCParens) switchTree.getExpression()).getExpression();
-    identifierName = identifier.name.toString();
     identifierType = identifier.type.toString();
     List<JCTree.JCCase> switchCases = ((JCTree.JCSwitch) switchTree).getCases();
 
@@ -37,20 +36,22 @@ public class EnumSwitch {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    EnumSwitch aSwitch = (EnumSwitch) o;
-    return identifierName.equals(aSwitch.identifierName);
+    EnumSwitch that = (EnumSwitch) o;
+    return hasDefault == that.hasDefault &&
+      identifierType.equals(that.identifierType) &&
+      cases.equals(that.cases);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(identifierName);
+    return Objects.hash(identifierType, cases, hasDefault);
   }
 
   @Override
   public String toString() {
     StringBuilder stringRep = new StringBuilder()
-      .append("Identifier:\n")
-      .append("  named " + identifierName + " and of type " + identifierType + "\n")
+      .append("  Type:\n")
+      .append("    " + identifierType + "\n")
       .append("Cases:\n")
       .append("  [\n");
 
@@ -60,8 +61,8 @@ public class EnumSwitch {
 
     stringRep
       .append("  ]\n")
-      .append("Has default:\n")
-      .append("    " + hasDefault + "\n");
+      .append("Provides default case:\n")
+      .append("  " + hasDefault);
 
     return stringRep.toString();
   }

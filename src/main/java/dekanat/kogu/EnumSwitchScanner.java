@@ -1,32 +1,16 @@
 package dekanat.kogu;
 
 import com.sun.source.tree.SwitchTree;
-import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
 
-public class ASTScanner extends TreeScanner {
+public class EnumSwitchScanner extends TreeScanner {
   private Context context;
 
-  public ASTScanner(Context context) {
+  public EnumSwitchScanner(Context context) {
     this.context = context;
-  }
-
-  @Override
-  public Object visitVariable(VariableTree node, Object o) {
-    State state = (State) o;
-    Symbol symbol = ((JCTree.JCIdent) ((JCTree.JCVariableDecl) node).vartype).sym;
-    String supertype = ((Type.ClassType) symbol.type).supertype_field.tsym.name.toString();
-
-
-    if (supertype.equals("Enum")) {
-      state.addVariableDeclaration(new EnumDeclaration(node));
-    }
-
-    return super.visitVariable(node, o);
   }
 
   @Override
