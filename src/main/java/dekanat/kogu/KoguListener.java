@@ -18,6 +18,10 @@ public class KoguListener implements TaskListener {
 
 
   @Override
+  public void started(TaskEvent e) {
+  }
+
+  @Override
   public void finished(TaskEvent e) {
     if (ANALYZE.equals(e.getKind())) {
       final State state = State.rinsed();

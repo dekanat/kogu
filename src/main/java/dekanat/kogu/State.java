@@ -1,20 +1,19 @@
 package dekanat.kogu;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 enum State {
   INSTANCE;
 
   private final static Set<EnumSwitch> partialSwitches = new HashSet<>();
+  // This serves as a cache. If the enum is not found here, we go to package, named and starred
+  // scopes to resolve it
   private final static Map<String, EnumDefinition> enumDefinitions = new HashMap<>();
 
-  private static Set<EnumSwitch> switches = new HashSet<>();
+  private static Map<String, List<EnumSwitch>> switches = new HashMap<>();
 
   public static State rinsed() {
-    switches = new HashSet<>();
+    switches = new HashMap<>();
     return INSTANCE;
   }
 
@@ -23,20 +22,24 @@ enum State {
   }
 
   public void addSwitch(EnumSwitch theSwitch) {
-    switches.add(theSwitch);
+    List<EnumSwitch> enumSwitches = switches.get(theSwitch.subjectType);
+    if (enumSwitches == null) {
+      switches.put(theSwitch.subjectType, new ArrayList<EnumSwitch>(){{ this.add(theSwitch); }});
+    } else {
+      enumSwitches.add(theSwitch);
+    }
   }
 
   public Report evaluate() {
-
-    for (EnumSwitch enumSwitch : switches) {
-      EnumDefinition enumDefinition = enumDefinitions.get(enumSwitch.identifierType);
+    switches.values().stream().flatMap(Collection::stream).forEach(enumSwitch -> {
+      EnumDefinition enumDefinition = enumDefinitions.get(enumSwitch.subjectType);
 
       if (!enumSwitch.hasDefault() && enumDefinition != null) {
         if (!enumSwitch.cases.containsAll(enumDefinition.instanceMembers)) {
           partialSwitches.add(enumSwitch);
         }
       }
-    }
+    });
 
     return new Report(partialSwitches);
   }
@@ -45,7 +48,7 @@ enum State {
     System.out.println("****** Brief description");
     System.out.println();
     System.out.println("* Switches");
-    switches.forEach(s -> System.out.println(s));
+    switches.values().stream().flatMap(Collection::stream).forEach(v -> System.out.println(v));
     System.out.println();
     System.out.println("* Enums");
     enumDefinitions.forEach((k, v) -> System.out.println(v));

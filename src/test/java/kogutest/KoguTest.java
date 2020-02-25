@@ -10,6 +10,12 @@ public class KoguTest {
     TE te = TE.INSTANCE2;
     final String var = "var";
 
+    switch (Diagnostic.Kind.ERROR) {
+      case ERROR:
+        System.out.println("Instance");
+        break;
+    }
+
     switch (k) {
       case ERROR:
         System.out.println("Instance");
