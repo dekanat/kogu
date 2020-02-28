@@ -1,10 +1,14 @@
 package kogutest;
 
+import kogutest.other.OtherHost;
+
 import javax.tools.Diagnostic;
 
 public class KoguTest {
   {
     Diagnostic.Kind k = Diagnostic.Kind.ERROR;
+    Host.HE he = Host.HE.HEI1;
+    Host.Inner.HIE hie = Host.Inner.HIE.HIEI1;
 
     E e = E.INSTANCE;
     TE te = TE.INSTANCE2;
@@ -26,8 +30,8 @@ public class KoguTest {
       case INSTANCE:
         System.out.println("Instance");
         break;
-      case ANOTHER_INSTANCE:
-        System.out.println("Another instance");
+      case INSTANCE2:
+        System.out.println("Instance2");
         break;
     }
 
@@ -42,11 +46,29 @@ public class KoguTest {
         System.out.println("Instance");
         break;
     }
+
+    switch (he) {
+      case HEI1:
+        System.out.println("Instance");
+        break;
+    }
+
+    switch (OtherHost.HE.HEI1) {
+      case HEI1:
+        System.out.println("Instance");
+        break;
+    }
+
+    switch (hie) {
+      case HIEI1:
+        System.out.println("Instance");
+        break;
+    }
   }
 }
 
 enum E {
   INSTANCE,
-  ANOTHER_INSTANCE;
+  INSTANCE2;
   String p;
 }
