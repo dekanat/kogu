@@ -7,16 +7,16 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
 
 public class EnumSwitchScanner extends TreeScanner {
-  private Context context;
+  private final Context context;
 
-  public EnumSwitchScanner(Context context) {
+  public EnumSwitchScanner(final Context context) {
     this.context = context;
   }
 
   @Override
-  public Object visitSwitch(SwitchTree node, Object o) {
-    State state = (State) o;
-    JCTree.JCExpression switchExpression = ((JCTree.JCParens) node.getExpression()).getExpression();
+  public Object visitSwitch(final SwitchTree node, final Object o) {
+    final State state = (State) o;
+    final JCTree.JCExpression switchExpression = ((JCTree.JCParens) node.getExpression()).getExpression();
     ClassType subjectType = null;
 
     if (switchExpression instanceof JCTree.JCFieldAccess) {
@@ -26,10 +26,10 @@ public class EnumSwitchScanner extends TreeScanner {
     }
 
     if (subjectType != null) {
-      String subjectSupertypeName = subjectType.tsym.getQualifiedName().toString();
+      final String subjectSupertypeName = subjectType.tsym.toString();
 
       if (subjectSupertypeName.equals("java.lang.Enum")) {
-        String subjectTypeName = subjectType.typarams_field.get(0).toString();
+        final String subjectTypeName = subjectType.typarams_field.get(0).toString();
         state.addSwitch(new EnumSwitch(node, subjectTypeName));
       }
     }

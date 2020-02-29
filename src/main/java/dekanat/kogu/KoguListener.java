@@ -3,10 +3,14 @@ package dekanat.kogu;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
+import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import static com.sun.source.util.TaskEvent.Kind.ANALYZE;
 
@@ -28,35 +32,64 @@ public class KoguListener implements TaskListener {
 
       CompilationUnitTree cu = e.getCompilationUnit();
 
-      scanSymbols((JCTree.JCCompilationUnit) cu, state);
       scanAST(cu, state);
+      resolveEnums(cu, state);
+
+//      state.brief();
 
       Report report = state.evaluate();
       report.brief();
     }
   }
 
+  private void resolveEnums(CompilationUnitTree cu, State state) {
+    Set<String> resolvedSwitchEnumTypes = new HashSet();
+    Set<String> unresolvedSwitchEnumTypes = state.getSwitchEnumTypes();
+
+    Scope packageScope = ((JCTree.JCCompilationUnit) cu).packge.members_field;
+    Scope namedImportScope = ((JCTree.JCCompilationUnit) cu).namedImportScope;
+    Scope starImportScope = ((JCTree.JCCompilationUnit) cu).starImportScope;
+
+    for (String switchEnumType: unresolvedSwitchEnumTypes) {
+      boolean isResolved = state.isEnumTypeResolved(switchEnumType);
+
+      isResolved = resolveEnumInScope(packageScope, switchEnumType, state, isResolved);
+      isResolved = resolveEnumInScope(namedImportScope, switchEnumType, state, isResolved);
+      isResolved = resolveEnumInScope(starImportScope, switchEnumType, state, isResolved);
+
+      if (isResolved) {
+        resolvedSwitchEnumTypes.add(switchEnumType);
+      }
+    }
+
+    if (!resolvedSwitchEnumTypes.containsAll(unresolvedSwitchEnumTypes)) {
+      System.err.println("Something went terribly wrong");
+    }
+  }
+
+  private boolean resolveEnumInScope(Scope scope, String enumType, State state, boolean isResolved) {
+    if (!isResolved) {
+      Iterator<Symbol> symbolIterator = scope.getSymbols().iterator();
+
+      while (symbolIterator.hasNext() && !isResolved) {
+        Symbol symbolAtHand = symbolIterator.next();
+        String symbolName = symbolAtHand.getQualifiedName().toString();
+
+        if (enumType.equals(symbolName)) {
+          state.addEnumDefinition(new EnumDefinition(symbolAtHand));
+          isResolved = true;
+        } else if (enumType.startsWith(symbolName)) {
+          Scope symbolScope = symbolAtHand.members();
+          isResolved = resolveEnumInScope(symbolScope, enumType, state, false);
+        }
+      }
+    }
+
+    return isResolved;
+  }
+
   private void scanAST(CompilationUnitTree cu, State state) {
     EnumSwitchScanner switchVisitor = new EnumSwitchScanner(context);
     switchVisitor.scan(cu, state);
-  }
-
-  private void scanSymbols(JCTree.JCCompilationUnit cu, State state) {
-    Symbol.PackageSymbol ps = cu.packge;
-    Iterable<Symbol> packageSymbols = ps.members_field.getSymbols();
-
-    for (Symbol symbol : packageSymbols) {
-      markIfEnum(symbol, state);
-    }
-  }
-
-  private void markIfEnum(Symbol s, State state) {
-
-    Type supertype = ((Type.ClassType) s.type).supertype_field;
-    String supertypeName = supertype.tsym.name.toString();
-
-    if (supertypeName.equals("Enum")) {
-      state.addEnumDefinition(new EnumDefinition(s));
-    }
   }
 }

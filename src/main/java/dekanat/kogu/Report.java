@@ -1,14 +1,15 @@
 package dekanat.kogu;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Report {
-  private final static Set<EnumSwitch> partialSwitches = new HashSet<>();
+  private final static Map<String, List<EnumSwitch>> partialSwitches = new HashMap<>();
   private final StringBuilder report = new StringBuilder().append("Kogu report\n\n");
 
-  public Report(Set<EnumSwitch> partialSwitches) {
-    this.partialSwitches.addAll(partialSwitches);
+  public Report(Map<String, List<EnumSwitch>> partialSwitches) {
+    this.partialSwitches.putAll(partialSwitches);
   }
 
   public void brief() {
@@ -17,8 +18,10 @@ public class Report {
     } else {
       report.append("Partial switches:\n");
 
-      for (EnumSwitch partialSwitch : partialSwitches) {
-        report.append("  " + partialSwitch.location + "\n");
+      for (List<EnumSwitch> partialSwitches : partialSwitches.values()) {
+        for (EnumSwitch enumSwitch: partialSwitches) {
+          report.append("  " + enumSwitch.subjectType + "\n");
+        }
       }
     }
 

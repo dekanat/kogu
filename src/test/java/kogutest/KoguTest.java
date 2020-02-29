@@ -54,7 +54,7 @@ public class KoguTest {
     }
 
     switch (OtherHost.HE.HEI1) {
-      case HEI1:
+      case HEI2:
         System.out.println("Instance");
         break;
     }

@@ -5,7 +5,8 @@ import java.util.*;
 enum State {
   INSTANCE;
 
-  private final static Set<EnumSwitch> partialSwitches = new HashSet<>();
+  private final static Map<String, List<EnumSwitch>> partialSwitches = new HashMap<>();
+
   // This serves as a cache. If the enum is not found here, we go to package, named and starred
   // scopes to resolve it
   private final static Map<String, EnumDefinition> enumDefinitions = new HashMap<>();
@@ -21,6 +22,10 @@ enum State {
     enumDefinitions.put(enumDefinition.fullName, enumDefinition);
   }
 
+  public boolean isEnumTypeResolved(String enumType) {
+    return enumDefinitions.get(enumType) != null;
+  }
+
   public void addSwitch(EnumSwitch theSwitch) {
     List<EnumSwitch> enumSwitches = switches.get(theSwitch.subjectType);
     if (enumSwitches == null) {
@@ -30,19 +35,33 @@ enum State {
     }
   }
 
+  public Set<String> getSwitchEnumTypes() {
+    return switches.keySet();
+  }
+
   public Report evaluate() {
     switches.values().stream().flatMap(Collection::stream).forEach(enumSwitch -> {
       EnumDefinition enumDefinition = enumDefinitions.get(enumSwitch.subjectType);
 
       if (!enumSwitch.hasDefault() && enumDefinition != null) {
         if (!enumSwitch.cases.containsAll(enumDefinition.instanceMembers)) {
-          partialSwitches.add(enumSwitch);
+          addPartialSwitch(enumSwitch);
         }
       }
     });
 
     return new Report(partialSwitches);
   }
+
+  private void addPartialSwitch(EnumSwitch partialSwitch) {
+    List<EnumSwitch> enumSwitches = partialSwitches.get(partialSwitch.subjectType);
+    if (enumSwitches == null) {
+      partialSwitches.put(partialSwitch.subjectType, new ArrayList<EnumSwitch>(){{ this.add(partialSwitch); }});
+    } else {
+      enumSwitches.add(partialSwitch);
+    }
+  }
+
 
   public void brief() {
     System.out.println("****** Brief description");
