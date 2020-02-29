@@ -5,15 +5,17 @@ import java.util.*;
 enum State {
   INSTANCE;
 
-  private final static Map<String, List<EnumSwitch>> partialSwitches = new HashMap<>();
+  private final static Map<String, List<EnumSwitch>> allPartialSwitches = new HashMap<>();
+  private static Map<String, List<EnumSwitch>> localPartialSwitches = new HashMap<>();
+  private static Map<String, List<EnumSwitch>> switches = new HashMap<>();
 
   // This serves as a cache. If the enum is not found here, we go to package, named and starred
   // scopes to resolve it
   private final static Map<String, EnumDefinition> enumDefinitions = new HashMap<>();
 
-  private static Map<String, List<EnumSwitch>> switches = new HashMap<>();
-
   public static State rinsed() {
+    allPartialSwitches.putAll(localPartialSwitches);
+    localPartialSwitches = new HashMap<>();
     switches = new HashMap<>();
     return INSTANCE;
   }
@@ -50,18 +52,17 @@ enum State {
       }
     });
 
-    return new Report(partialSwitches);
+    return new Report(localPartialSwitches);
   }
 
   private void addPartialSwitch(EnumSwitch partialSwitch) {
-    List<EnumSwitch> enumSwitches = partialSwitches.get(partialSwitch.subjectType);
+    List<EnumSwitch> enumSwitches = localPartialSwitches.get(partialSwitch.subjectType);
     if (enumSwitches == null) {
-      partialSwitches.put(partialSwitch.subjectType, new ArrayList<EnumSwitch>(){{ this.add(partialSwitch); }});
+      localPartialSwitches.put(partialSwitch.subjectType, new ArrayList<EnumSwitch>(){{ this.add(partialSwitch); }});
     } else {
       enumSwitches.add(partialSwitch);
     }
   }
-
 
   public void brief() {
     System.out.println("****** Brief description");
@@ -76,5 +77,9 @@ enum State {
 
   public void verbose() {
     System.out.println("****** Verbose description");
+  }
+
+  public boolean containsSwitches() {
+    return !switches.isEmpty();
   }
 }

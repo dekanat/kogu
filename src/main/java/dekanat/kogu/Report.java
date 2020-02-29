@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Report {
-  private final static Map<String, List<EnumSwitch>> partialSwitches = new HashMap<>();
+  private final Map<String, List<EnumSwitch>> partialSwitches = new HashMap<>();
   private final StringBuilder report = new StringBuilder().append("Kogu report\n\n");
 
   public Report(Map<String, List<EnumSwitch>> partialSwitches) {

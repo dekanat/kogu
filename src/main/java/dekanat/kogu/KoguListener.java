@@ -31,14 +31,16 @@ public class KoguListener implements TaskListener {
       final State state = State.rinsed();
 
       CompilationUnitTree cu = e.getCompilationUnit();
+//      System.out.println("In file: " + cu.getSourceFile());
 
       scanAST(cu, state);
-      resolveEnums(cu, state);
 
-//      state.brief();
-
-      Report report = state.evaluate();
-      report.brief();
+      if (state.containsSwitches()) {
+//        state.brief();
+        resolveEnums(cu, state);
+        Report report = state.evaluate();
+        report.brief();
+      }
     }
   }
 

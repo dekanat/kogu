@@ -5,6 +5,11 @@ import kogutest.other.OtherHost;
 import javax.tools.Diagnostic;
 
 public class KoguTest {
+  public enum HEz {
+    HEIz1,
+    HEIz2;
+  }
+
   {
     Diagnostic.Kind k = Diagnostic.Kind.ERROR;
     Host.HE he = Host.HE.HEI1;
