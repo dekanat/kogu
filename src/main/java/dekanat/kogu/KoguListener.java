@@ -5,12 +5,11 @@ import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 
-import java.nio.charset.Charset;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -19,6 +18,7 @@ import static com.sun.source.util.TaskEvent.Kind.ANALYZE;
 
 public class KoguListener implements TaskListener {
   private Context context;
+  private final String rootFolder = System.getProperty("user.dir") + File.separator;
 
   public KoguListener(Context context) {
     this.context = context;
@@ -34,14 +34,13 @@ public class KoguListener implements TaskListener {
       CompilationUnitTree cu = e.getCompilationUnit();
 
       final State state = State.rinsed();
-      state.setFilename(cu.getSourceFile().getName());
+      state.setFilename(rootFolder + cu.getSourceFile().getName());
 
       scanAST(cu, state);
 
       if (state.containsSwitches()) {
         resolveEnums(cu, state);
         state.evaluate();
-//        state.print();
         state.flushVia(Log.instance(context));
       }
     }

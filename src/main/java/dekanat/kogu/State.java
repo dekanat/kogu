@@ -3,6 +3,8 @@ package dekanat.kogu;
 import com.sun.tools.javac.util.Log;
 import dekanat.kogu.logging.KoguMessages;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 enum State {
@@ -74,6 +76,9 @@ enum State {
           .reduce((l, r) -> l + ", " + r)
           .get();
 
+        Position switchPositionInFile = resolvePositionInFile(enumSwitch, fileName);
+
+        logger.printRawLines(fileName + ":" + switchPositionInFile);
         logger.error(
           enumSwitch.position.getPreferredPosition(),
           KoguMessages.INEXHAUSTIVE_MATCH,
@@ -81,6 +86,37 @@ enum State {
           missingCases);
       }
     }
+  }
+
+  private Position resolvePositionInFile(EnumSwitch enumSwitch, String fileName) {
+    boolean expressionFound = false;
+    int switchLineNumber = 0;
+    int switchColumnNumber = 0;
+    int linesRead = 0;
+
+    try (Scanner scanner = new Scanner(new File(fileName))) {
+      while (scanner.hasNextLine()) {
+        String lineAtHand = scanner.nextLine();
+        linesRead++;
+
+        if (lineAtHand.contains("switch")) {
+          switchLineNumber = linesRead;
+          switchColumnNumber = lineAtHand.lastIndexOf("switch");
+        }
+
+        if (lineAtHand.trim().contains(enumSwitch.subjectExpression.trim())) {
+          expressionFound = true;
+        }
+
+        if (expressionFound){
+          break;
+        }
+      }
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+
+    return new Position(switchLineNumber, switchColumnNumber);
   }
 
   private void addPartialSwitch(EnumSwitch partialSwitch) {

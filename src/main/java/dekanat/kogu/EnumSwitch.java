@@ -11,12 +11,14 @@ import java.util.Set;
 
 public class EnumSwitch {
   public final String subjectType;
+  public final String subjectExpression;
   public final Set<String> cases = new HashSet<>();
   private boolean hasDefault = false;
   public final JCDiagnostic.DiagnosticPosition position;
 
   public EnumSwitch(SwitchTree switchTree, String subjectType) {
     this.subjectType = subjectType;
+    this.subjectExpression = switchTree.getExpression().toString();
     List<JCTree.JCCase> switchCases = ((JCTree.JCSwitch) switchTree).getCases();
 
     for (JCTree.JCCase cs : switchCases) {
@@ -41,17 +43,21 @@ public class EnumSwitch {
     EnumSwitch that = (EnumSwitch) o;
     return hasDefault == that.hasDefault &&
       subjectType.equals(that.subjectType) &&
-      cases.equals(that.cases);
+      subjectExpression.equals(that.subjectExpression) &&
+      cases.equals(that.cases) &&
+      position.equals(that.position);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(subjectType, cases, hasDefault);
+    return Objects.hash(subjectType, subjectExpression, cases, hasDefault, position);
   }
 
   @Override
   public String toString() {
     StringBuilder stringRep = new StringBuilder()
+      .append("Expression:\n")
+      .append("  " + subjectExpression + "\n")
       .append("Type:\n")
       .append("  " + subjectType + "\n")
       .append("Cases:\n")
