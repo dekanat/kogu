@@ -2,6 +2,7 @@ package dekanat.kogu;
 
 import com.sun.source.tree.SwitchTree;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.List;
 
 import java.util.HashSet;
@@ -12,19 +13,21 @@ public class EnumSwitch {
   public final String subjectType;
   public final Set<String> cases = new HashSet<>();
   private boolean hasDefault = false;
-  public final String location = "Somewhere in the code";
+  public final JCDiagnostic.DiagnosticPosition position;
 
   public EnumSwitch(SwitchTree switchTree, String subjectType) {
     this.subjectType = subjectType;
     List<JCTree.JCCase> switchCases = ((JCTree.JCSwitch) switchTree).getCases();
 
-    for (JCTree.JCCase cs: switchCases) {
+    for (JCTree.JCCase cs : switchCases) {
       if (cs.pat != null) {
         cases.add(((JCTree.JCIdent) cs.pat).name.toString());
       } else {
         hasDefault = true;
       }
     }
+
+    this.position = ((JCTree.JCSwitch) switchTree).pos();
   }
 
   public boolean hasDefault() {
@@ -52,13 +55,11 @@ public class EnumSwitch {
       .append("Type:\n")
       .append("  " + subjectType + "\n")
       .append("Cases:\n")
-      .append("  [\n");
-
-    for (String cs : cases) {
-      stringRep.append("    " + cs + "\n");
-    }
-
-    stringRep
+      .append("  [\n")
+      .append(cases.stream()
+        .map(c -> "    " + c + "\n")
+        .reduce((l, r) -> l + r)
+        .get())
       .append("  ]\n")
       .append("Provides default case:\n")
       .append("  " + hasDefault + "\n");

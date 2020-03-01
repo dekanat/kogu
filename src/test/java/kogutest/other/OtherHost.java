@@ -16,6 +16,8 @@ public class OtherHost {
     switch (hei1) {
       case HEI1:
         System.out.println("HEI1");
+      default:
+        System.out.println("Default");
     }
 
     switch (TE.INSTANCE) {

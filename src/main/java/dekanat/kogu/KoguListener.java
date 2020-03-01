@@ -5,9 +5,12 @@ import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
 import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Log;
 
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,10 +19,10 @@ import static com.sun.source.util.TaskEvent.Kind.ANALYZE;
 
 public class KoguListener implements TaskListener {
   private Context context;
+
   public KoguListener(Context context) {
     this.context = context;
   }
-
 
   @Override
   public void started(TaskEvent e) {
@@ -28,18 +31,18 @@ public class KoguListener implements TaskListener {
   @Override
   public void finished(TaskEvent e) {
     if (ANALYZE.equals(e.getKind())) {
-      final State state = State.rinsed();
-
       CompilationUnitTree cu = e.getCompilationUnit();
-//      System.out.println("In file: " + cu.getSourceFile());
+
+      final State state = State.rinsed();
+      state.setFilename(cu.getSourceFile().getName());
 
       scanAST(cu, state);
 
       if (state.containsSwitches()) {
-//        state.brief();
         resolveEnums(cu, state);
-        Report report = state.evaluate();
-        report.brief();
+        state.evaluate();
+//        state.print();
+        state.flushVia(Log.instance(context));
       }
     }
   }

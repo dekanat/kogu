@@ -42,13 +42,11 @@ public class EnumDefinition {
       .append("Full name:\n")
       .append("  " + fullName + "\n")
       .append("Instance members:\n")
-      .append("  [\n");
-
-    for (String is : instanceMembers) {
-      stringRep.append("    " + is + "\n");
-    }
-
-    stringRep
+      .append("  [\n")
+      .append(instanceMembers.stream()
+        .map(m -> "    " + m + "\n")
+        .reduce((l, r) -> l + r)
+        .get())
       .append("  ]\n");
 
     return stringRep.toString();

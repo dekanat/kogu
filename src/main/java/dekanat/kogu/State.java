@@ -1,5 +1,8 @@
 package dekanat.kogu;
 
+import com.sun.tools.javac.util.Log;
+import dekanat.kogu.logging.KoguMessages;
+
 import java.util.*;
 
 enum State {
@@ -12,12 +15,18 @@ enum State {
   // This serves as a cache. If the enum is not found here, we go to package, named and starred
   // scopes to resolve it
   private final static Map<String, EnumDefinition> enumDefinitions = new HashMap<>();
+  private static String fileName;
 
   public static State rinsed() {
     allPartialSwitches.putAll(localPartialSwitches);
     localPartialSwitches = new HashMap<>();
     switches = new HashMap<>();
+    fileName = null;
     return INSTANCE;
+  }
+
+  public void setFilename(String fileName) {
+    this.fileName = fileName;
   }
 
   public void addEnumDefinition(EnumDefinition enumDefinition) {
@@ -31,7 +40,9 @@ enum State {
   public void addSwitch(EnumSwitch theSwitch) {
     List<EnumSwitch> enumSwitches = switches.get(theSwitch.subjectType);
     if (enumSwitches == null) {
-      switches.put(theSwitch.subjectType, new ArrayList<EnumSwitch>(){{ this.add(theSwitch); }});
+      switches.put(theSwitch.subjectType, new ArrayList<EnumSwitch>() {{
+        this.add(theSwitch);
+      }});
     } else {
       enumSwitches.add(theSwitch);
     }
@@ -41,7 +52,7 @@ enum State {
     return switches.keySet();
   }
 
-  public Report evaluate() {
+  public void evaluate() {
     switches.values().stream().flatMap(Collection::stream).forEach(enumSwitch -> {
       EnumDefinition enumDefinition = enumDefinitions.get(enumSwitch.subjectType);
 
@@ -51,32 +62,53 @@ enum State {
         }
       }
     });
+  }
 
-    return new Report(localPartialSwitches);
+  public void flushVia(Log logger) {
+    for (List<EnumSwitch> enumSwitches : localPartialSwitches.values()) {
+      for (EnumSwitch enumSwitch : enumSwitches) {
+        Set<String> enumMembers = enumDefinitions.get(enumSwitch.subjectType).instanceMembers;
+
+        String missingCases = enumMembers.stream()
+          .filter(m -> !enumSwitch.cases.contains(m))
+          .reduce((l, r) -> l + ", " + r)
+          .get();
+
+        logger.error(
+          enumSwitch.position.getPreferredPosition(),
+          KoguMessages.INEXHAUSTIVE_MATCH,
+          enumSwitch.subjectType,
+          missingCases);
+      }
+    }
   }
 
   private void addPartialSwitch(EnumSwitch partialSwitch) {
     List<EnumSwitch> enumSwitches = localPartialSwitches.get(partialSwitch.subjectType);
     if (enumSwitches == null) {
-      localPartialSwitches.put(partialSwitch.subjectType, new ArrayList<EnumSwitch>(){{ this.add(partialSwitch); }});
+      localPartialSwitches.put(partialSwitch.subjectType, new ArrayList<EnumSwitch>() {{
+        this.add(partialSwitch);
+      }});
     } else {
       enumSwitches.add(partialSwitch);
     }
   }
 
-  public void brief() {
+  public void print() {
     System.out.println("****** Brief description");
     System.out.println();
     System.out.println("* Switches");
     switches.values().stream().flatMap(Collection::stream).forEach(v -> System.out.println(v));
     System.out.println();
+    System.out.println("* All partial switches");
+    allPartialSwitches.values().stream().flatMap(Collection::stream).forEach(v -> System.out.println(v));
+    System.out.println();
+    System.out.println("* Local partial switches");
+    localPartialSwitches.values().stream().flatMap(Collection::stream).forEach(v -> System.out.println(v));
+    System.out.println();
     System.out.println("* Enums");
     enumDefinitions.forEach((k, v) -> System.out.println(v));
 
-  }
-
-  public void verbose() {
-    System.out.println("****** Verbose description");
   }
 
   public boolean containsSwitches() {
