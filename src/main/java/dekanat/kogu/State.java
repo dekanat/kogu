@@ -67,27 +67,32 @@ enum State {
   }
 
   public void flushVia(final Log logger) {
-    for (List<EnumSwitch> enumSwitches : localPartialSwitches.values()) {
-      for (EnumSwitch enumSwitch : enumSwitches) {
-        Set<String> enumMembers = enumDefinitions.get(enumSwitch.subjectType).instanceMembers;
+    for (Map.Entry<String, List<EnumSwitch>> enumSwitchEntries : localPartialSwitches.entrySet()) {
+      for (EnumSwitch enumSwitch : enumSwitchEntries.getValue()) {
+        List<EnumSwitch> enumSwitchesForCU = allPartialSwitches.get(enumSwitchEntries.getKey());
 
-        String missingCases = enumMembers.stream()
-          .filter(m -> !enumSwitch.cases.contains(m))
-          .reduce((l, r) -> l + ", " + r)
-          .get();
+        if(enumSwitchesForCU == null ||
+          (enumSwitchesForCU != null && !enumSwitchesForCU.contains(enumSwitch))) {
+          Set<String> enumMembers = enumDefinitions.get(enumSwitch.subjectType).instanceMembers;
 
-        Position switchPositionInFile = resolvePositionInFile(enumSwitch, fileName);
+          String missingCases = enumMembers.stream()
+            .filter(m -> !enumSwitch.cases.contains(m))
+            .reduce((l, r) -> l + ", " + r)
+            .get();
 
-        String markerLine = spaces(switchPositionInFile.colNumber) + "^";
+          Position switchPositionInFile = resolvePositionInFile(enumSwitch, fileName);
 
-        logger.printRawLines(fileName + ":" + switchPositionInFile);
-        logger.error(
-          enumSwitch.position.getPreferredPosition(),
-          KoguMessages.INEXHAUSTIVE_MATCH,
-          enumSwitch.subjectType,
-          switchPositionInFile.line,
-          markerLine,
-          missingCases);
+          String markerLine = spaces(switchPositionInFile.colNumber) + "^";
+
+          logger.printRawLines(fileName + ":" + switchPositionInFile);
+          logger.error(
+            enumSwitch.position.getPreferredPosition(),
+            KoguMessages.INEXHAUSTIVE_MATCH,
+            enumSwitch.subjectType,
+            switchPositionInFile.line,
+            markerLine,
+            missingCases);
+        }
       }
     }
   }

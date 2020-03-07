@@ -23,12 +23,14 @@ public class KoguTest {
       case ERROR:
         System.out.println("Instance");
         break;
+      default: break;
     }
 
     switch (k) {
       case ERROR:
         System.out.println("Instance");
         break;
+      default: break;
     }
 
     switch (e) {
@@ -44,12 +46,14 @@ public class KoguTest {
       case INSTANCE:
         System.out.println("Instance");
         break;
+      default: break;
     }
 
     switch (te) {
       case INSTANCE:
         System.out.println("Instance");
         break;
+      default: break;
     }
 
     switch (he) {
@@ -62,12 +66,14 @@ public class KoguTest {
       case HEI2:
         System.out.println("Instance");
         break;
+      default: break;
     }
 
     switch (hie) {
       case HIEI1:
         System.out.println("Instance");
         break;
+      default: break;
     }
   }
 }

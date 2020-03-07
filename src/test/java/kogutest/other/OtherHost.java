@@ -23,7 +23,6 @@ public class OtherHost {
     switch (TE.INSTANCE) {
       case INSTANCE2:
         System.out.println("INSTANCE2");
-      default:break;
     }
 
     switch (KoguTest.HEz.HEIz1) {
