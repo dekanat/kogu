@@ -2,6 +2,8 @@
 
 **Kogu** is a Java compiler plugin, introducing exhaustive matching over *Enum*s to Java. The enhancements of `switch` statements were [proposed](https://mail.openjdk.java.net/pipermail/amber-dev/2017-December/002412.html) in December, 2017 and made available as a [feature](https://openjdk.java.net/jeps/361) since Java 13.
 
+Early thoughts by [Brian Goetz](https://www.linkedin.com/in/briangoetz) behind these changes can be found [here](https://cr.openjdk.java.net/~briangoetz/amber/pattern-match.html).
+
 ## Motivation
 
 In CS, there is this idea of [Algebraic Data Types](https://en.wikipedia.org/wiki/Algebraic_data_type) that branches into [Product Types](https://en.wikipedia.org/wiki/Product_type) and [Sum Types](https://en.wikipedia.org/wiki/Sum_type). [Enumeration Types](https://en.wikipedia.org/wiki/Enumerated_type) are special cases of [Sum Types](https://en.wikipedia.org/wiki/Sum_type).
@@ -16,7 +18,7 @@ enum WeekDays {
 }
 ```
 
-It is obious that there can be only one _(instance of)_ `Monday` or any other week day. In fact, the singleton nature of an enumeration type is guaranteed by Java itself.
+It is obvious that there can be only one _(instance of)_ `Monday` or any other week day. In fact, the singleton nature of an enumeration type is guaranteed by Java itself.
 
 Now, let's talk a bit about exhaustiveness in `switch` statements. By exhaustiveness, we mean that our `switch` statement considers all the cases the switch subject may represent. One way to achieve this is to provide a corresponding `case` for all of them, however this may not work for switches over `String`-s or `Integer`-s. After all, in most cases we are not interested in _all_ the numbers or strings in the universe, but just a rather small subset of those. This also holds true for all subjects that may represent infintely many concrete cases. In such cases we can make the `switch` exhaustive by simply specifying the `default` case.
 
@@ -47,21 +49,19 @@ This compiles just fine with
 
 > $ javac A.java
 
-But what happens when we add `E2` to our `E` enum like so?
+But what happens when we add `E2` to our `E` enumeration like so?
 
 ```java
-public class A {
-  ...
-}
+public class A { ... }
 
 enum E {
   E1, E2;
 }
 ```
 
-Again, the code will compile and the `switch` will execute the `default` branch when the value of `e` is `E2`. This is the expected behaviour, according to Java specs, but is it the desirable one? Such a behaviour is, most of the times, undesirable, since the decision of handling `E2` as a `default` branch was imposed by the language, not us. This is something we can cope with, but it requires a certain amount ov attention and effort and humans are not that good at those things.
+Again, the code will compile and the `switch` will execute the `default` branch when the value of `e` is `E2`. This is the expected behaviour, according to Java specs, but is it the desirable one? Such a behaviour is, most of the times, undesirable, since the decision of handling `E2` as a `default` branch was made by the language, not us. This is something we can cope with, but it requires a certain amount of attention and effort and humans are not that good at those things.
 
-We get a similar picture when we get rid of the `default` case like so:
+We get a similar picture when we get rid of the `default` case in the switch over our `E` with two values like so:
 
 ```java
 public class A {
@@ -96,10 +96,10 @@ error: Inexhaustive match detected over enum E
      switch (e) {  
      ^  
   You are missing the following members [ E2 ]. You may also fix this by introducing the "default" case
-1 errors
+1 error
 ```
 
-**Kogu** helps fixing such issues by reports the missing enumeration values or suggesting to add a `default` case. Either way, now the decision to resort to ignoring the specific value or handling it is made by the programmer.
+**Kogu** helps fixing such issues by reports the location of the inexhaustive switch and the missing enumeration values or suggests to fix it by adding a `default` case. Either way, now the decision to resort to ignoring the specific value or handling it is made by the programmer.
 
 ## Implementation
 

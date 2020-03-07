@@ -3,8 +3,10 @@ package dekanat.kogu;
 public class Position {
   public final int lineNumber;
   public final int colNumber;
+  public final String line;
 
-  public Position(int lineNumber, int colNumber) {
+  public Position(String line, int lineNumber, int colNumber) {
+    this.line = line;
     this.lineNumber = lineNumber;
     this.colNumber = colNumber;
   }

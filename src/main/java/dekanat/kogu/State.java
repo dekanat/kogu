@@ -35,7 +35,7 @@ enum State {
     enumDefinitions.put(enumDefinition.fullName, enumDefinition);
   }
 
-  public boolean isEnumTypeResolved(String enumType) {
+  public boolean isEnumTypeResolved(final String enumType) {
     return enumDefinitions.get(enumType) != null;
   }
 
@@ -66,7 +66,7 @@ enum State {
     });
   }
 
-  public void flushVia(Log logger) {
+  public void flushVia(final Log logger) {
     for (List<EnumSwitch> enumSwitches : localPartialSwitches.values()) {
       for (EnumSwitch enumSwitch : enumSwitches) {
         Set<String> enumMembers = enumDefinitions.get(enumSwitch.subjectType).instanceMembers;
@@ -78,14 +78,26 @@ enum State {
 
         Position switchPositionInFile = resolvePositionInFile(enumSwitch, fileName);
 
+        String markerLine = spaces(switchPositionInFile.colNumber) + "^";
+
         logger.printRawLines(fileName + ":" + switchPositionInFile);
         logger.error(
           enumSwitch.position.getPreferredPosition(),
           KoguMessages.INEXHAUSTIVE_MATCH,
           enumSwitch.subjectType,
+          switchPositionInFile.line,
+          markerLine,
           missingCases);
       }
     }
+  }
+
+  private String spaces(int n) {
+    StringBuffer spaces = new StringBuffer(n);
+    for (int i = 0; i < n; i++){
+      spaces.append(" ");
+    }
+    return spaces.toString();
   }
 
   private Position resolvePositionInFile(EnumSwitch enumSwitch, String fileName) {
@@ -93,6 +105,7 @@ enum State {
     int switchLineNumber = 0;
     int switchColumnNumber = 0;
     int linesRead = 0;
+    String switchLine = "";
 
     try (Scanner scanner = new Scanner(new File(fileName))) {
       while (scanner.hasNextLine()) {
@@ -102,6 +115,7 @@ enum State {
         if (lineAtHand.contains("switch")) {
           switchLineNumber = linesRead;
           switchColumnNumber = lineAtHand.lastIndexOf("switch");
+          switchLine = lineAtHand;
         }
 
         if (lineAtHand.trim().contains(enumSwitch.subjectExpression.trim())) {
@@ -116,7 +130,7 @@ enum State {
       e.printStackTrace();
     }
 
-    return new Position(switchLineNumber, switchColumnNumber);
+    return new Position(switchLine, switchLineNumber, switchColumnNumber);
   }
 
   private void addPartialSwitch(EnumSwitch partialSwitch) {
