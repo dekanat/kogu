@@ -8,6 +8,8 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
+import dekanat.kogu.models.EnumDefinition;
+import dekanat.kogu.models.State;
 
 import java.io.File;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package dekanat.kogu;
+package dekanat.kogu.models;
 
 import com.sun.tools.javac.util.Log;
 import dekanat.kogu.logging.KoguMessages;
@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-enum State {
+public enum State {
   INSTANCE;
 
   private final static Map<String, List<EnumSwitch>> allPartialSwitches = new HashMap<>();

@@ -1,4 +1,4 @@
-package dekanat.kogu;
+package dekanat.kogu.models;
 
 public class Position {
   public final int lineNumber;

@@ -1,4 +1,4 @@
-package dekanat.kogu;
+package dekanat.kogu.models;
 
 import com.sun.source.tree.SwitchTree;
 import com.sun.tools.javac.tree.JCTree;

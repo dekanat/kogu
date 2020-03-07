@@ -5,6 +5,8 @@ import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
+import dekanat.kogu.models.EnumSwitch;
+import dekanat.kogu.models.State;
 
 public class EnumSwitchScanner extends TreeScanner {
   private final Context context;
