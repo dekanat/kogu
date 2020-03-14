@@ -1,11 +1,19 @@
 package dekanat.kogu.models;
 
-import com.sun.tools.javac.util.Log;
-import dekanat.kogu.logging.KoguMessages;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+import java.text.MessageFormat;
+
+import com.sun.tools.javac.util.Log;
+
+import dekanat.kogu.logging.KoguMessages;
 
 public enum State {
   INSTANCE;
@@ -27,8 +35,8 @@ public enum State {
     return INSTANCE;
   }
 
-  public void setFilename(String fileName) {
-    this.fileName = fileName;
+  public void setFilename(String _fileName) {
+    fileName = _fileName;
   }
 
   public void addEnumDefinition(EnumDefinition enumDefinition) {
@@ -84,14 +92,22 @@ public enum State {
 
           String markerLine = spaces(switchPositionInFile.colNumber) + "^";
 
+          Object[] params = new Object[]{
+            enumSwitch.subjectType, 
+            switchPositionInFile.line, 
+            markerLine, 
+            missingCases
+          };
+          
+          String errorTemplate = new KoguMessages().getFormat(KoguMessages.ERROR_PREFIX, KoguMessages.INEXHAUSTIVE_MATCH);
+
+          // The code below is (I suppose) a dirty hack but it works. Somehow Java 8 won't:
+          //  1. register a resource bundle
+          //  2. won't print the error lines in raw error
+          // so I have to print raw lines and then report an error with an empty string
           logger.printRawLines(fileName + ":" + switchPositionInFile);
-          logger.error(
-            enumSwitch.position.getPreferredPosition(),
-            KoguMessages.INEXHAUSTIVE_MATCH,
-            enumSwitch.subjectType,
-            switchPositionInFile.line,
-            markerLine,
-            missingCases);
+          logger.printRawLines(MessageFormat.format(errorTemplate, params));
+          logger.rawError(enumSwitch.position.getPreferredPosition(), "");
         }
       }
     }

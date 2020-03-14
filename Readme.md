@@ -105,7 +105,7 @@ error: Inexhaustive match detected over enum E
 
 Some parts of the implementation are based on non-public APIs of `javac` compiler. Other parts of the implementation are based on `javac` public API which is documented to be different for different versions of Java. Naturally, a plugin built for one version of Java _may_ not work for a different version.
 
-Since this feature is available from Java 13 on, it will be implemented only for Java 8, 9, 10, 11, and 12.
+Since this feature is available from Java 13 on, it will be implemented only for Java 8, 9, 10, 11, and 12. Each implementation will have its own branch named **j\<java version>**, e.g. **j8** for Java 8 or **j11** for Java 11.
 
 ## Build
 
@@ -125,4 +125,4 @@ To incorporate the plugin into your compilation, tell `javac` to use the plugin 
 
 | Java           | 8  |  9  | 10 | 11  | 12  |
 |:---------------|:--:|:---:|:--:|:---:|:---:|
-| **Supported**  | ❌ | ❌ | ❌ | ✔️ | ❌ |
+| **Supported**  | ✔️ | ❌ | ❌ | ✔️ | ❌ |
