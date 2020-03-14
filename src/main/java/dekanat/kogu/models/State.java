@@ -92,6 +92,7 @@ public enum State {
             switchPositionInFile.line,
             markerLine,
             missingCases);
+          logger.printNewline();
         }
       }
     }

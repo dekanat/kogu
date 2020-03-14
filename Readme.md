@@ -96,6 +96,7 @@ error: Inexhaustive match detected over enum E
      switch (e) {  
      ^  
   You are missing the following members [ E2 ]. You may also fix this by introducing the "default" case
+
 1 error
 ```
 
