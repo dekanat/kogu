@@ -120,7 +120,12 @@ This should produce a `kogu-1.0.jar` jar file. Also make sure that the Java vers
 
 To incorporate the plugin into your compilation, tell `javac` to use the plugin via `-Xplugin` option and make the plugin jar available on your classpath. It should look something this:
 
-> $ javac -Xplugin:Kogu -cp *<path_to_kogu_jar>* *<the_rest_of_your_compilation_command>*
+> $ javac -Xplugin:Kogu -cp *<path_to_kogu_jar>* *<the_rest_of_your_compilation_command>* [-XDkogu.strict]
+
+### Reporting mode
+
+Kogu supports two reporting modes: **strict** and **default**
+In **strict** mode, all inexhaustive matches will be reported as errors, whereas in **default** mode they will be reported as warnings. Reporting mode is switche on when `-XDkogu.strict` option is applied.
 
 ## Supported Java versions
 

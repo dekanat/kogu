@@ -1,5 +1,7 @@
 package dekanat.kogu;
 
+import com.sun.tools.javac.util.Options;
+
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.Plugin;
 import com.sun.tools.javac.api.BasicJavacTask;
@@ -17,6 +19,9 @@ public class Kogu implements Plugin {
   public void init(JavacTask javacTask, String... strings) {
     final Context context = ((BasicJavacTask) javacTask).getContext();
 
-    javacTask.addTaskListener(new KoguListener(context));
+    Options options = Options.instance(context);
+    boolean strictReporting = options.get("kogu.strict") != null ? true : false;
+
+    javacTask.addTaskListener(new KoguListener(context, strictReporting));
   }
 }

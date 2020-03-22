@@ -19,11 +19,13 @@ import java.util.Set;
 import static com.sun.source.util.TaskEvent.Kind.ANALYZE;
 
 public class KoguListener implements TaskListener {
-  private Context context;
+  private final Context context;
+  private final boolean strictReporting;
   private final String rootFolder = System.getProperty("user.dir") + File.separator;
 
-  public KoguListener(Context context) {
+  public KoguListener(Context context, boolean strictReporting) {
     this.context = context;
+    this.strictReporting = strictReporting;
   }
 
   @Override
@@ -43,13 +45,13 @@ public class KoguListener implements TaskListener {
       if (state.containsSwitches()) {
         resolveEnums(cu, state);
         state.evaluate();
-        state.flushVia(Log.instance(context));
+        state.flushVia(Log.instance(context), strictReporting);
       }
     }
   }
 
   private void resolveEnums(CompilationUnitTree cu, State state) {
-    final Set<String> resolvedSwitchEnumTypes = new HashSet();
+    final Set<String> resolvedSwitchEnumTypes = new HashSet<String>();
     final Set<String> unresolvedSwitchEnumTypes = state.getSwitchEnumTypes();
 
     final Scope packageScope = ((JCTree.JCCompilationUnit) cu).packge.members_field;

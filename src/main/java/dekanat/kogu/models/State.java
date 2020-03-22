@@ -74,7 +74,7 @@ public enum State {
     });
   }
 
-  public void flushVia(final Log logger) {
+  public void flushVia(final Log logger, boolean strictReporting) {
     for (Map.Entry<String, List<EnumSwitch>> enumSwitchEntries : localPartialSwitches.entrySet()) {
       for (EnumSwitch enumSwitch : enumSwitchEntries.getValue()) {
         List<EnumSwitch> enumSwitchesForCU = allPartialSwitches.get(enumSwitchEntries.getKey());
@@ -92,7 +92,10 @@ public enum State {
 
           String markerLine = spaces(switchPositionInFile.colNumber) + "^";
 
+          String reportType = strictReporting ? "error" : "warning";
+
           Object[] params = new Object[]{
+            reportType,
             enumSwitch.subjectType, 
             switchPositionInFile.line, 
             markerLine, 
@@ -107,7 +110,12 @@ public enum State {
           // so I have to print raw lines and then report an error with an empty string
           logger.printRawLines(fileName + ":" + switchPositionInFile);
           logger.printRawLines(MessageFormat.format(errorTemplate, params));
-          logger.rawError(enumSwitch.position.getPreferredPosition(), "");
+          
+          if (strictReporting) {
+            logger.rawError(enumSwitch.position.getPreferredPosition(), "");
+          } else  {
+            logger.rawWarning(enumSwitch.position.getPreferredPosition(), "");
+          }
         }
       }
     }

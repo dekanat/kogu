@@ -11,14 +11,14 @@ public class KoguMessages extends ListResourceBundle {
   private final StringBuilder inexhaustiveMatchMessage = new StringBuilder();
   {
     inexhaustiveMatchMessage
-      .append("error: Inexhaustive match detected over enum {0}")
+      .append("{0}: Inexhaustive match detected over enum {1}")
       .append(System.lineSeparator())
-      .append(System.lineSeparator())
-      .append("  {1}")
       .append(System.lineSeparator())
       .append("  {2}")
       .append(System.lineSeparator())
-      .append("  You are missing the following members [ {3} ].")
+      .append("  {3}")
+      .append(System.lineSeparator())
+      .append("  You are missing the following members [ {4} ].")
       .append(" You may also fix this by introducing the \"default\" case")
       .append(System.lineSeparator())
       .append(System.lineSeparator());
