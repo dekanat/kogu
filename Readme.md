@@ -91,13 +91,13 @@ it will produce the following output:
 
 ```text
 /full/path/to/A.java:5,4  
-error: Inexhaustive match detected over enum E  
+warning: Inexhaustive match detected over enum E  
   
      switch (e) {  
      ^  
   You are missing the following members [ E2 ]. You may also fix this by introducing the "default" case
 
-1 error
+1 warning
 ```
 
 **Kogu** helps fixing such issues by reporting the locations of inexhaustive switches and the missing enumeration values. Alternatively, one can fix the issue by adding a `default` case. Either way, now the decision of ignoring a specific enumeration value or handling it is made explicitly by the programmer.
@@ -106,7 +106,11 @@ error: Inexhaustive match detected over enum E
 
 Some parts of the implementation are based on non-public APIs of `javac` compiler. Other parts of the implementation are based on `javac` public API which is documented to be different for different versions of Java. Naturally, a plugin built for one version of Java _may_ not work for a different version.
 
-Since this feature is available from Java 13 on, it will be implemented only for Java 8, 9, 10, 11, and 12. Each implementation will have its own branch named **j\<java version>**, e.g. **j8** for Java 8 or **j11** for Java 11.
+Since this feature is available from Java 13 on, Kogu is implemented for Java 8, 9, 10, 11, and 12. The implementation for Java 9, 10 and 11 is the same, hence there will be three branches for each different implementation:
+
+* **j8** for Java 8
+* **j11** as an umbrella branch for Java 9, 10 and 11
+* **j12** for Java 12
 
 ## Build
 
@@ -118,12 +122,31 @@ This should produce a `kogu-1.0.jar` jar file. Also make sure that the Java vers
 
 ## Usage
 
+### Reporting mode
+
+Kogu supports two reporting modes: **strict** and **default**
+In **strict** mode, all inexhaustive matches will be reported as errors, whereas in **default** mode they will be reported as warnings. Reporting mode is on when `-XDkogu.strict` option is specified.
+
+### javac
+
 To incorporate the plugin into your compilation, tell `javac` to use the plugin via `-Xplugin` option and make the plugin jar available on your classpath. It should look something this:
 
-> $ javac -Xplugin:Kogu -cp *<path_to_kogu_jar>* *<the_rest_of_your_compilation_command>*
+> $ javac -Xplugin:Kogu -cp *<path_to_kogu_jar>* *<the_rest_of_your_compilation_command>* [-XDkogu.strict]
+
+### Gradle
+
+To integrate the plugin in strict mode into your gradle build, you can specify it in `option`-s for `compileJava` tasks:
+
+```groovy
+compileJava {
+  ...
+  options.compilerArgs << "-Xplugin:Kogu -cp <path_to_kogu_jar> -XDkogu.strict"
+  ...
+}
+```
 
 ## Supported Java versions
 
-| Java           | 8  |  9  | 10 | 11  | 12  |
+| Java version   | 8  |  9  | 10 | 11  | 12  |
 |:---------------|:--:|:---:|:--:|:---:|:---:|
-| **Supported**  | ✔️ | ❌ | ❌ | ✔️ | ❌ |
+| **Supported**  | ✔️ | ✔️ | ✔️ | ✔️ | ❌ |
