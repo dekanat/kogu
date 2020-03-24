@@ -106,7 +106,11 @@ warning: Inexhaustive match detected over enum E
 
 Some parts of the implementation are based on non-public APIs of `javac` compiler. Other parts of the implementation are based on `javac` public API which is documented to be different for different versions of Java. Naturally, a plugin built for one version of Java _may_ not work for a different version.
 
-Since this feature is available from Java 13 on, it will be implemented only for Java 8, 9, 10, 11, and 12. Each implementation will have its own branch named **j\<java version>**, e.g. **j8** for Java 8 or **j11** for Java 11.
+Since this feature is available from Java 13 on, Kogu is implemented for Java 8, 9, 10, 11, and 12. The implementation for Java 9, 10 and 11 is the same, hence there will be three branches for each different implementation:
+
+* **j8** for Java 8
+* **j11** as an umbrella branch for Java 9, 10 and 11
+* **j12** for Java 12
 
 ## Build
 
@@ -143,6 +147,6 @@ compileJava {
 
 ## Supported Java versions
 
-| Java           | 8  |  9  | 10 | 11  | 12  |
+| Java version   | 8  |  9  | 10 | 11  | 12  |
 |:---------------|:--:|:---:|:--:|:---:|:---:|
-| **Supported**  | ✔️ | ❌ | ❌ | ✔️ | ❌ |
+| **Supported**  | ✔️ | ✔️ | ✔️ | ✔️ | ❌ |
