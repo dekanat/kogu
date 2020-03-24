@@ -19,11 +19,13 @@ import java.util.Set;
 import static com.sun.source.util.TaskEvent.Kind.ANALYZE;
 
 public class KoguListener implements TaskListener {
-  private Context context;
+  private final Context context;
+  private final boolean strictReporting;
   private final String rootFolder = System.getProperty("user.dir") + File.separator;
 
-  public KoguListener(Context context) {
+  public KoguListener(Context context, boolean strictReporting) {
     this.context = context;
+    this.strictReporting = strictReporting;
   }
 
   @Override
@@ -33,7 +35,7 @@ public class KoguListener implements TaskListener {
   @Override
   public void finished(TaskEvent e) {
     if (ANALYZE.equals(e.getKind())) {
-      CompilationUnitTree cu = e.getCompilationUnit();
+      final CompilationUnitTree cu = e.getCompilationUnit();
 
       final State state = State.rinsed();
       state.setFilename(rootFolder + cu.getSourceFile().getName());
@@ -43,18 +45,18 @@ public class KoguListener implements TaskListener {
       if (state.containsSwitches()) {
         resolveEnums(cu, state);
         state.evaluate();
-        state.flushVia(Log.instance(context));
+        state.flushVia(Log.instance(context), strictReporting);
       }
     }
   }
 
   private void resolveEnums(CompilationUnitTree cu, State state) {
-    Set<String> resolvedSwitchEnumTypes = new HashSet();
-    Set<String> unresolvedSwitchEnumTypes = state.getSwitchEnumTypes();
+    final Set<String> resolvedSwitchEnumTypes = new HashSet<String>();
+    final Set<String> unresolvedSwitchEnumTypes = state.getSwitchEnumTypes();
 
-    Scope packageScope = ((JCTree.JCCompilationUnit) cu).packge.members_field;
-    Scope namedImportScope = ((JCTree.JCCompilationUnit) cu).namedImportScope;
-    Scope starImportScope = ((JCTree.JCCompilationUnit) cu).starImportScope;
+    final Scope packageScope = ((JCTree.JCCompilationUnit) cu).packge.members_field;
+    final Scope namedImportScope = ((JCTree.JCCompilationUnit) cu).namedImportScope;
+    final Scope starImportScope = ((JCTree.JCCompilationUnit) cu).starImportScope;
 
     for (String switchEnumType: unresolvedSwitchEnumTypes) {
       boolean isResolved = state.isEnumTypeResolved(switchEnumType);
@@ -75,11 +77,11 @@ public class KoguListener implements TaskListener {
 
   private boolean resolveEnumInScope(Scope scope, String enumType, State state, boolean isResolved) {
     if (!isResolved) {
-      Iterator<Symbol> symbolIterator = scope.getSymbols().iterator();
+      final Iterator<Symbol> symbolIterator = scope.getSymbols().iterator();
 
       while (symbolIterator.hasNext() && !isResolved) {
-        Symbol symbolAtHand = symbolIterator.next();
-        String symbolName = symbolAtHand.getQualifiedName().toString();
+        final Symbol symbolAtHand = symbolIterator.next();
+        final String symbolName = symbolAtHand.getQualifiedName().toString();
 
         if (enumType.equals(symbolName)) {
           state.addEnumDefinition(new EnumDefinition(symbolAtHand));
@@ -95,7 +97,7 @@ public class KoguListener implements TaskListener {
   }
 
   private void scanAST(CompilationUnitTree cu, State state) {
-    EnumSwitchScanner switchVisitor = new EnumSwitchScanner(context);
+    final EnumSwitchScanner switchVisitor = new EnumSwitchScanner();
     switchVisitor.scan(cu, state);
   }
 }
