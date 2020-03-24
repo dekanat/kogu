@@ -22,8 +22,10 @@ public class EnumSwitch {
     List<JCTree.JCCase> switchCases = ((JCTree.JCSwitch) switchTree).getCases();
 
     for (JCTree.JCCase cs : switchCases) {
-      if (cs.pat != null) {
-        cases.add(((JCTree.JCIdent) cs.pat).name.toString());
+      if (cs.pats != null && cs.pats.nonEmpty()) {
+        cs.pats
+          .map(path -> ((JCTree.JCIdent) path).name.toString())
+          .forEach(cases::add);
       } else {
         hasDefault = true;
       }
