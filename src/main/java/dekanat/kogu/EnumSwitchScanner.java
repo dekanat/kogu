@@ -4,20 +4,13 @@ import com.sun.source.tree.SwitchTree;
 import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.Context;
 import dekanat.kogu.models.EnumSwitch;
 import dekanat.kogu.models.State;
 
-public class EnumSwitchScanner extends TreeScanner {
-  private final Context context;
-
-  public EnumSwitchScanner(final Context context) {
-    this.context = context;
-  }
+public class EnumSwitchScanner extends TreeScanner<Object, State> {
 
   @Override
-  public Object visitSwitch(final SwitchTree node, final Object o) {
-    final State state = (State) o;
+  public Object visitSwitch(final SwitchTree node, final State state) {
     final JCTree.JCExpression switchExpression = ((JCTree.JCParens) node.getExpression()).getExpression();
     ClassType subjectType = null;
 
@@ -36,6 +29,6 @@ public class EnumSwitchScanner extends TreeScanner {
       }
     }
 
-    return super.visitSwitch(node, o);
+    return super.visitSwitch(node, state);
   }
 }

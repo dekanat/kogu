@@ -66,7 +66,7 @@ public enum State {
     });
   }
 
-  public void flushVia(final Log logger) {
+  public void flushVia(final Log logger, boolean strictReporting) {
     for (Map.Entry<String, List<EnumSwitch>> enumSwitchEntries : localPartialSwitches.entrySet()) {
       for (EnumSwitch enumSwitch : enumSwitchEntries.getValue()) {
         List<EnumSwitch> enumSwitchesForCU = allPartialSwitches.get(enumSwitchEntries.getKey());
@@ -85,13 +85,24 @@ public enum State {
           String markerLine = spaces(switchPositionInFile.colNumber) + "^";
 
           logger.printRawLines(fileName + ":" + switchPositionInFile);
-          logger.error(
-            enumSwitch.position.getPreferredPosition(),
-            KoguMessages.INEXHAUSTIVE_MATCH,
-            enumSwitch.subjectType,
-            switchPositionInFile.line,
-            markerLine,
-            missingCases);
+
+          if(strictReporting) {
+            logger.error(
+              enumSwitch.position.getPreferredPosition(),
+              KoguMessages.INEXHAUSTIVE_MATCH,
+              enumSwitch.subjectType,
+              switchPositionInFile.line,
+              markerLine,
+              missingCases);
+          } else {
+            logger.strictWarning(
+              enumSwitch.position,
+              KoguMessages.INEXHAUSTIVE_MATCH,
+              enumSwitch.subjectType,
+              switchPositionInFile.line,
+              markerLine,
+              missingCases);
+          }
           logger.printNewline();
         }
       }
