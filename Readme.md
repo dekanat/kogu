@@ -1,4 +1,4 @@
-# Kogu ⚙
+# Kogu (コグ) ⚙
 
 **Kogu** is a Java compiler plugin, introducing exhaustive matching over **enum**-s. The enhancements of `switch` statements were [proposed](https://mail.openjdk.java.net/pipermail/amber-dev/2017-December/002412.html) in December, 2017 and made available as a [feature](https://openjdk.java.net/jeps/361) since Java 13.
 
